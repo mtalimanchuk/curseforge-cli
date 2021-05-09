@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import List
 
@@ -12,6 +13,9 @@ class CliError(Exception):
 
 class CurseCli:
     def __init__(self, game_slug: str) -> None:
+
+        os.system("color")  # enable colors in windows terminal
+
         try:
             self.game = GAMES[game_slug]
         except KeyError:
