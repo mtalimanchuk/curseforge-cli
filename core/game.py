@@ -181,5 +181,6 @@ class WoW(Game):
 
 GAMES = {
     "wow_retail": WoW(1, "wow_retail", "_retail_"),
-    "wow_classic": WoW(1, "wow_classic", "_classic_"),
+    "wow_classic": WoW(1, "wow_classic", "_classic_era_"),
+    "wow_tbc": WoW(1, "wow_burning_crusade", "_classic_"),
 }
