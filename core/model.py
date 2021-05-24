@@ -142,7 +142,14 @@ class AddonFile(BaseModel):
     def from_api(cls, data: dict):
         date_str = data.get("fileDate")
         date_str = date_str.rstrip("Z")
-        date_str, microseconds = date_str.rsplit(".", maxsplit=1)
+        date_parts = date_str.rsplit(".", maxsplit=1)
+
+        try:
+            date_str, microseconds = date_parts
+        except ValueError:
+            date_str = date_parts[0]
+            microseconds = 0
+
         date_str = f"{date_str}.{microseconds:<06}"
         file_date = datetime.fromisoformat(date_str)
 
