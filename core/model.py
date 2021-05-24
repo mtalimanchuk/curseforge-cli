@@ -25,6 +25,7 @@ class colors:
     WHITE = "\u001b[97m"
 
     BG_GRAY = "\u001b[100m"
+    BG_BLACK = "\u001b[40m"
     BG_RED = "\u001b[41m"
     BG_GREEN = "\u001b[42m"
     BG_YELLOW = "\u001b[43m"
@@ -176,16 +177,17 @@ class AddonFile(BaseModel):
     @property
     def view(self) -> str:
         versions = ", ".join(self.game_version)
+        indent = f"{colors.BG_YELLOW} {colors.RESET} "
 
-        header = f"{colors.BOLD}{self.file_date:%d %b %Y}{colors.RESET} {self.display_name} for {colors.BOLD}{self.game_version_flavor} {versions}{colors.RESET}"
+        header = f"{indent}{colors.BOLD}{self.file_date:%d %b %Y}{colors.RESET} {self.display_name} for {colors.BOLD}{self.game_version_flavor} {versions}{colors.RESET}"
 
-        game_info = f"{self.url}"
+        game_info = f"{indent}{self.url}"
 
         dependencies = ", ".join(self.dependencies)
         if dependencies:
-            dependencies = f"Depends on: {dependencies}\n"
+            dependencies = f"{indent}Depends on: {dependencies}\n"
 
-        view = "\n".join(f"\t{row}" for row in [header, game_info, dependencies])
+        view = "\n".join(f"{row}" for row in [header, game_info, dependencies])
 
         return view
 
@@ -235,7 +237,7 @@ class AddonInfo(BaseModel):
             download_count = f"{download_count // int(1e6)}M"
         elif download_count > 1e3:
             download_count = f"{download_count // int(1e3)}K"
-        header = f"{colors.BOLD}#{self.curse_id} | {self.name}{colors.RESET} by {colors.BOLD}{authors} ({download_count} downloads){colors.RESET}"
+        header = f"{colors.BLACK}{colors.BG_YELLOW}#{colors.BG_WHITE}{self.curse_id} | {self.name} {colors.RESET} by {colors.BOLD}{authors} [{download_count} downloads]{colors.RESET}"
 
         summary = f"{self.summary}\n"
 

@@ -77,7 +77,7 @@ class CurseCli:
             query, self.game.curse_id, self.game.slug, **kwargs
         )
         for r in results:
-            print("=" * 80)
+            print("")
             print(r.view)
 
     def install(self, query: int, **kwargs):
