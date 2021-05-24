@@ -82,6 +82,7 @@ class CurseCli:
 
     def install(self, query: int, **kwargs):
         extract_path = self.installed_game.path
+
         self.api.download_addon(int(query), extract_path, self.game.slug)
 
 

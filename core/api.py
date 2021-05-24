@@ -59,6 +59,9 @@ class API:
         latest_file = sorted(
             addon.latest_files, key=lambda lf: lf.file_date, reverse=True
         )[0]
+
+        print(f"Downloading {addon}:\n{latest_file}")
+
         extract_path = extract_path / addon.category_section.path
 
         with Session() as session:
@@ -68,8 +71,15 @@ class API:
         zip_io.write(r.content)
         zip_io.seek(0)
 
-        with ZipFile(zip_io, "r") as zip_f:
-            zip_f.extractall(extract_path)
+        try:
+            print(f"Extracting to {extract_path.absolute()}... ", end="")
+
+            with ZipFile(zip_io, "r") as zip_f:
+                zip_f.extractall(extract_path)
+
+            print("Done")
+        except Exception as e:
+            print(f"Failed because {type(e)}: {e}")
 
     def search_addon(
         self,

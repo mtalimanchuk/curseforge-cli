@@ -140,6 +140,8 @@ class Game:
 
     def discover(self, info: GameInfo) -> InstalledGame:
         path = self._discover_game_path(info.game_detection_hints)
+        print(f"Discovered {info.name} in {path.absolute()}")
+
         addons = self._discover_addons(path, info.category_sections)
 
         game = InstalledGame(slug=self.slug, path=path, info=info, addons=addons)
@@ -160,16 +162,19 @@ class WoW(Game):
             for line in list(toc_f):
                 line = line.strip()
                 if line.startswith("##"):
-                    k, v = [
-                        text.strip()
-                        for text in line.lstrip("# ").split(":", maxsplit=1)
-                    ]
-                    if k == "Interface":
-                        interface = int(v)
-                    elif k == "X-Curse-Project-ID":
-                        curse_id = int(v)
-                    elif k == "Title":
-                        title = v
+                    try:
+                        k, v = [
+                            text.strip()
+                            for text in line.lstrip("# ").split(":", maxsplit=1)
+                        ]
+                        if k == "Interface":
+                            interface = int(v)
+                        elif k == "X-Curse-Project-ID":
+                            curse_id = int(v)
+                        elif k == "Title":
+                            title = v
+                    except Exception:
+                        pass
 
         return AddonLocalInfo(
             interface=interface,
