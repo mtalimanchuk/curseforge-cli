@@ -216,6 +216,11 @@ class AddonInfo(BaseModel):
 
     @classmethod
     def from_api(cls, data: dict):
+        latest_files_unsorted = [AddonFile.from_api(f) for f in data.get("latestFiles")]
+        latest_files = sorted(
+            latest_files_unsorted, key=lambda lf: lf.file_date, reverse=True
+        )
+
         kwargs = dict(
             curse_id=data.get("id"),
             name=data.get("name"),
@@ -223,11 +228,15 @@ class AddonInfo(BaseModel):
             url=data.get("websiteUrl"),
             summary=data.get("summary"),
             download_count=int(data.get("downloadCount")),
-            latest_files=[AddonFile.from_api(f) for f in data.get("latestFiles")],
+            latest_files=latest_files,
             category_section=CategorySection.from_api(data.get("categorySection")),
             slug=data.get("slug"),
         )
         return cls(**kwargs)
+
+    @property
+    def latest_file(self) -> AddonFile:
+        return self.latest_files[0]
 
     @property
     def view(self) -> str:

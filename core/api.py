@@ -56,19 +56,34 @@ class API:
 
     def download_addon(self, id: int, extract_path: Path, game_flavor: str = None):
         addon = self.get_addon(id, game_flavor)
-        latest_file = sorted(
-            addon.latest_files, key=lambda lf: lf.file_date, reverse=True
-        )[0]
 
-        print(f"Downloading {addon}:\n{latest_file}")
+        modules = ", ".join(addon.latest_file.modules)
+        print(
+            f"Downloading {addon.name} [{modules}] from {addon.latest_file.file_date:%d %b %Y}"
+        )
 
         extract_path = extract_path / addon.category_section.path
 
         with Session() as session:
-            r = session.get(latest_file.url, headers=self.headers)
+            r = session.get(addon.latest_file.url, headers=self.headers, stream=True)
+
+        from tqdm import tqdm
+
+        total_size_in_bytes = int(r.headers.get("content-length", 0))
+        chunk_size = 1024  # 1 Kibibyte
+        progress_bar = tqdm(total=total_size_in_bytes, unit="iB", unit_scale=True)
 
         zip_io = BytesIO()
-        zip_io.write(r.content)
+
+        for chunk in r.iter_content(chunk_size):
+            progress_bar.update(len(chunk))
+            zip_io.write(chunk)
+
+        progress_bar.close()
+
+        if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+            print("ERROR, downloading went wrong")
+
         zip_io.seek(0)
 
         try:
