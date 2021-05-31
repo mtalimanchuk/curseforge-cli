@@ -1,5 +1,5 @@
 # curseforge-cli
-### (unofficial) command line addon manager for World of Warcraft, coming soon: Minecraft, The  Elder Scrolls Online [and more](https://www.curseforge.com/all-games)
+### (unofficial) command line addon manager for World of Warcraft, The Elder Scrolls Online, coming soon: Minecraft [and more](https://www.curseforge.com/all-games)
 
 ## Basic usage
 ```
@@ -9,6 +9,8 @@ curseforge-cli game action [arguments]
 ## Supported games
 - wow_retail - *World of Warcraft Retail*
 - wow_classic - *World of Warcraft Classic*
+- wow_tbc - *World of Warcraft The Burning Crusade*
+- teso - *The Elder Scrolls Online*
 
 ## Actions
 - ## list - *list installed addons*
