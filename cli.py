@@ -85,6 +85,12 @@ class CurseCli:
 
         self.api.download_addon(int(query), extract_path, self.game.slug)
 
+    def config(self, action: str, path: str):
+        if action == "export":
+            self.game.export_config(self.installed_game.path, path)
+        elif action == "import":
+            print(f"Placeholder for {action} {path}")
+
 
 def parse_args():
     argv = sys.argv[1:]
@@ -101,6 +107,13 @@ def parse_args():
         kwargs = {k.lstrip("-"): v for k, v in zip(argv[::2], argv[1::2])}
     elif action == "install":
         args = [argv.pop(0)]
+    elif action == "config":
+        try:
+            kwargs = {"action": argv[0], "path": argv[1]}
+        except IndexError:
+            raise CliError(
+                f"Config arguments are not provided. Usage: `curseforge-cli wow_tbc config export config.zip`"
+            )
     else:
         raise CliError(f"Action '{action}' is not supported")
 
@@ -115,9 +128,11 @@ if __name__ == "__main__":
 
         if action == "list":
             cli.list()
-        if action == "search":
+        elif action == "search":
             cli.search(*args, **kwargs)
-        if action == "install":
+        elif action == "install":
             cli.install(*args, **kwargs)
+        elif action == "config":
+            cli.config(*args, **kwargs)
     except CliError as ce:
         print(f"[ERROR] {ce}. Exiting...")
