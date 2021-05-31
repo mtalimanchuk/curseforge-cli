@@ -77,7 +77,7 @@ class CategorySection(BaseModel):
     package_type: int
     path: Path
     initial_inclusion_pattern: str
-    extra_include_pattern: str
+    extra_include_pattern: Optional[str]
 
     @classmethod
     def from_api(cls, data: dict):
@@ -98,10 +98,10 @@ class GameInfo(BaseModel):
     game_files: List[GameFile]
     game_detection_hints: List[GameDetectionHint]
     category_sections: List[CategorySection]
-    addon_settings_folder_filter: str
-    addon_settings_starting_folder: str
-    addon_settings_file_filter: str
-    addon_settings_file_removal_filter: str
+    addon_settings_folder_filter: Optional[str]
+    addon_settings_starting_folder: Optional[str]
+    addon_settings_file_filter: Optional[str]
+    addon_settings_file_removal_filter: Optional[str]
 
     @classmethod
     def from_api(cls, data: dict):
@@ -137,7 +137,7 @@ class AddonFile(BaseModel):
     project_id: int
     game_id: int
     game_version: List[str]
-    game_version_flavor: str
+    game_version_flavor: Optional[str]
 
     @classmethod
     def from_api(cls, data: dict):
@@ -179,7 +179,8 @@ class AddonFile(BaseModel):
         versions = ", ".join(self.game_version)
         indent = f"{colors.BG_YELLOW} {colors.RESET} "
 
-        header = f"{indent}{colors.BOLD}{self.file_date:%d %b %Y}{colors.RESET} {self.display_name} for {colors.BOLD}{self.game_version_flavor} {versions}{colors.RESET}"
+        full_game_name = f"{self.game_version_flavor or 'version'} {versions}"
+        header = f"{indent}{colors.BOLD}{self.file_date:%d %b %Y}{colors.RESET} {self.display_name} for {colors.BOLD}{full_game_name}{colors.RESET}"
 
         game_info = f"{indent}{self.url}"
 
@@ -193,8 +194,8 @@ class AddonFile(BaseModel):
 
 
 class AddonLocalInfo(BaseModel):
-    interface: int
     folder_name: str
+    interface: Optional[int]
     title: Optional[str]
     curse_id: Optional[int]
 
@@ -302,5 +303,9 @@ class InstalledGame(BaseModel):
 
     @property
     def view(self):
-        view = "\n".join(a.view for a in self.addons)
+        if self.addons:
+            view = "\n".join(a.view for a in self.addons)
+        else:
+            view = f"\nNo addons installed for {self.info.name}"
+
         return view

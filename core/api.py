@@ -1,3 +1,4 @@
+from core.utils import resolve_addon_path
 from io import BytesIO
 from pathlib import Path
 from typing import List
@@ -54,7 +55,9 @@ class API:
         if addon:
             return addon
 
-    def download_addon(self, id: int, extract_path: Path, game_flavor: str = None):
+    def download_addon(
+        self, id: int, installed_game_path: Path, game_flavor: str = None
+    ):
         addon = self.get_addon(id, game_flavor)
 
         modules = ", ".join(addon.latest_file.modules)
@@ -62,7 +65,9 @@ class API:
             f"Downloading {addon.name} [{modules}] from {addon.latest_file.file_date:%d %b %Y}"
         )
 
-        extract_path = extract_path / addon.category_section.path
+        extract_path = resolve_addon_path(
+            installed_game_path, addon.category_section.path
+        )
 
         with Session() as session:
             r = session.get(addon.latest_file.url, headers=self.headers, stream=True)

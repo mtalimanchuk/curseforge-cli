@@ -1,7 +1,9 @@
+from core.utils import resolve_addon_path
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import winreg
+from zipfile import ZipFile
 
 from core.model import (
     AddonLocalInfo,
@@ -76,22 +78,43 @@ def search_directory(path) -> Path:
 
 
 class Game:
-    def __init__(self, curse_id: int, slug: str, game_folder_ending: str) -> None:
+    def __init__(
+        self, curse_id: int, slug: str, game_folder_ending: Optional[str] = None
+    ) -> None:
+        """Dummy Game class. Custom Games must inherit this.
+
+        Args:
+            curse_id (int): Game id according to curseforge API
+            slug (str): Game slug (short form) according to curseforge API
+            game_folder_ending (Optional[str], optional): Name of the game folder.
+                Some games like WoW store game files inside a subfolder, e.g. WoW/_classic_, WoW/_retail_.
+                Provide the name of this subfolder if the game does that.
+                Defaults to None.
+        """
         self.curse_id = curse_id
         self.slug = slug
         self.game_folder_ending = game_folder_ending
 
     def get_addon_local_info(self, addon_path: Path):
         raise NotImplementedError(
-            "Override get_addon_local_info method in your custom {self.__name__} child class"
+            f"Override get_addon_local_info method in {type(self)}"
         )
+
+    def get_config_dir(self, installed_game_path: Path):
+        raise NotImplementedError(f"Override get_config_dir method in {type(self)}")
+
+    def export_config(self, installed_game_path: Path, export_path: Path):
+        raise NotImplementedError(f"Override export_config method in {type(self)}")
+
+    def import_config(self, installed_game_path: Path, import_path: Path):
+        raise NotImplementedError(f"Override import_config method in {type(self)}")
 
     def _discover_addons(self, path: Path, category_sections: List[CategorySection]):
         local_addons = []
 
         for cat in category_sections:
-            # TODO add proper path builder which resolves %FOLDERS%
-            cat_path = path / cat.path
+            cat_path = resolve_addon_path(path, cat.path)
+
             for addon_path in cat_path.glob("*"):
                 local_info = self.get_addon_local_info(addon_path)
                 addon = InstalledAddon(local_info=local_info)
@@ -112,7 +135,9 @@ class Game:
             else:
                 raise ValueError(f"Unknown hint type {h.type}")
 
-            if game_dir and game_dir.name == self.game_folder_ending:
+            if game_dir:
+                if self.game_folder_ending and game_dir.name != self.game_folder_ending:
+                    continue
                 possible_results.append(game_dir)
 
         result = list(set(possible_results))
@@ -183,9 +208,68 @@ class WoW(Game):
             curse_id=curse_id,
         )
 
+    def get_config_dir(self, installed_game_path: Path):
+        return installed_game_path / "WTF"
+
+    def export_config(self, installed_game_path: Path, export_path: str):
+        export_path = Path(export_path)
+        config_dir = self.get_config_dir(installed_game_path)
+
+        with ZipFile(export_path, "w") as config_zip_f:
+            for p in config_dir.glob("**/*"):
+                config_zip_f.write(p, arcname=p.relative_to(config_dir))
+
+        print(f"Exported {config_dir} contents to {export_path}")
+
+
+class TES(Game):
+    def get_addon_local_info(self, addon_path: Path):
+        txt_path = list(addon_path.glob("*.txt"))[0]
+
+        interface = None
+        curse_id = None
+        title = None
+
+        with txt_path.open("r", encoding="utf-8") as toc_f:
+            for line in list(toc_f):
+                line = line.strip()
+                if line.startswith("##"):
+                    try:
+                        k, v = [
+                            text.strip()
+                            for text in line.lstrip("# ").split(":", maxsplit=1)
+                        ]
+                        if k == "Interface":
+                            interface = int(v)
+                        elif k == "X-Curse-Project-ID":
+                            curse_id = int(v)
+                        elif k == "Title":
+                            title = v
+                    except Exception:
+                        pass
+
+        return AddonLocalInfo(
+            interface=interface,
+            folder_name=addon_path.name,
+            title=title,
+            curse_id=curse_id,
+        )
+
 
 GAMES = {
     "wow_retail": WoW(1, "wow_retail", "_retail_"),
     "wow_classic": WoW(1, "wow_classic", "_classic_era_"),
     "wow_tbc": WoW(1, "wow_burning_crusade", "_classic_"),
+    "teso": TES(455, "teso", None),
 }
+
+"""
+Other known games. Will be added later.
+64 - The Secret World
+335 - runes of magic
+423 - world of tanks
+424 - rift
+432 - minecraft
+449 - skyrim
+454 - wildstar
+"""
