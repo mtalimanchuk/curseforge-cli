@@ -5,6 +5,7 @@ from typing import List
 from zipfile import ZipFile
 
 from requests import Session
+from tqdm import tqdm
 
 from ..core.model import AddonInfo, GameInfo
 
@@ -71,8 +72,6 @@ class API:
 
         with Session() as session:
             r = session.get(addon.latest_file.url, headers=self.headers, stream=True)
-
-        from tqdm import tqdm
 
         total_size_in_bytes = int(r.headers.get("content-length", 0))
         chunk_size = 1024  # 1 Kibibyte

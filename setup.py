@@ -14,7 +14,7 @@ here = pathlib.Path(__file__).parent.resolve()
 
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
-install_requires = ['pydantic>=1.8.2,<2.0.0', 'requests>=2.26.0,<3.0.0', 'setuptools==58.0.4']
+install_requires = ['pydantic>=1.8.2,<2.0.0', 'requests>=2.26.0,<3.0.0', 'setuptools==58.0.4', 'tqdm==4.62.3']
 
 entry_points = {
     'console_scripts': ['curseforge-cli=curseforge_cli.cli:run_cli'],
@@ -22,7 +22,7 @@ entry_points = {
 
 setup_kwargs = {
     'name': 'curseforge-cli',
-    'version': '0.1.1',
+    'version': '0.1.2',
     'description': 'Command line addon manager for World of Warcraft, TES: Online, Minecraft and more',
     'long_description': long_description,
     'long_description_content_type': 'text/markdown',
