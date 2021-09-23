@@ -279,9 +279,12 @@ class InstalledAddon(BaseModel):
 
         body = ""
         if self.info:
-            body = self.info.summary_view
+            body = self.info.summary_view.rstrip()
 
-        view = "\n".join([header, body])
+        modules = ", ".join(self.info.latest_file.modules)
+        footer = f"Modules: {modules}"
+
+        view = "\n".join([header, body, footer])
 
         return view
 

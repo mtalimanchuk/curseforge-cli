@@ -58,16 +58,25 @@ class CurseCli:
             return self.game.discover(info)
 
     def _resolve_installed_addons(self, addons: List[InstalledAddon]) -> InstalledGame:
+        resolved_dirs = {addon.local_info.folder_name: False for addon in addons}
+        resolved_addons = []
+
         for addon in addons:
             try:
-                addon_info = self.api.get_addon(
-                    addon.local_info.curse_id, self.game.slug
-                )
-                addon.info = addon_info
+                if not resolved_dirs[addon.local_info.folder_name]:
+                    addon_info = self.api.get_addon(
+                        addon.local_info.curse_id, self.game.slug
+                    )
+                    addon.info = addon_info
+
+                    for module in addon.info.latest_file.modules:
+                        resolved_dirs[module] = True
+
+                    resolved_addons.append(addon)
             except Exception:
                 pass
 
-        return addons
+        return resolved_addons
 
     def list(self):
         print(self.installed_game.view)
