@@ -107,7 +107,7 @@ class API:
         game_id: int,
         game_flavor: str,
         game_version: str = "",
-        page_size: int = 500,
+        page_size: int = 50,
         sort: SORT_TYPE = SORT_TYPE.POPULARITY,
     ) -> List[AddonInfo]:
         kwargs = {
@@ -118,10 +118,11 @@ class API:
             "sort": sort,
         }
         kwargs_str = "&".join(f"{k}={v}" for k, v in kwargs.items())
+        url = f"{self.base_url}/addon/search?{kwargs_str}"
 
         with Session() as session:
             r = session.get(
-                f"{self.base_url}/addon/search?{kwargs_str}",
+                url,
                 headers=self.headers,
             )
             data = r.json()
