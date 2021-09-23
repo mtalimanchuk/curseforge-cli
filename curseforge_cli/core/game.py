@@ -1,11 +1,10 @@
-from core.utils import resolve_addon_path
-import json
+from ..core.utils import resolve_addon_path
 from pathlib import Path
 from typing import List, Optional
 import winreg
 from zipfile import ZipFile
 
-from core.model import (
+from ..core.model import (
     AddonLocalInfo,
     CategorySection,
     GameDetectionHint,

@@ -1,4 +1,4 @@
-from core.utils import resolve_addon_path
+from ..core.utils import resolve_addon_path
 from io import BytesIO
 from pathlib import Path
 from typing import List
@@ -6,7 +6,7 @@ from zipfile import ZipFile
 
 from requests import Session
 
-from .model import AddonFile, AddonInfo, GameInfo
+from ..core.model import AddonInfo, GameInfo
 
 
 class SORT_TYPE:

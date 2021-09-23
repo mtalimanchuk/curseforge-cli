@@ -2,9 +2,9 @@ import os
 import sys
 from typing import List
 
-from core.api import API
-from core.game import GAMES, NoFoldersFound, MultipleFoldersFound
-from core.model import InstalledAddon, InstalledGame
+from .core.api import API
+from .core.game import GAMES, NoFoldersFound, MultipleFoldersFound
+from .core.model import InstalledAddon, InstalledGame
 
 
 class CliError(Exception):
@@ -120,7 +120,7 @@ def parse_args():
     return game_slug, action, args, kwargs
 
 
-if __name__ == "__main__":
+def run_cli():
     try:
         game_slug, action, args, kwargs = parse_args()
 
@@ -136,3 +136,7 @@ if __name__ == "__main__":
             cli.config(*args, **kwargs)
     except CliError as ce:
         print(f"[ERROR] {ce}. Exiting...")
+
+
+if __name__ == "__main__":
+    run_cli()
